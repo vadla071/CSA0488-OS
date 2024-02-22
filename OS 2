@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h> // Added header file
+
+#define BUFFER_SIZE 8192
+
+int main(int argc, char* argv[]) {
+    int srcfd, dstfd, nread, nwritten;
+
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <src_filename> <dst_filename>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    srcfd = open(argv[1], O_RDONLY);
+    if (srcfd == -1) {
+        perror("Opening source file failed.");
+        return EXIT_FAILURE;
+    }
+
+    dstfd = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    if (dstfd == -1) {
+        perror("Creating destination file failed.");
+        close(srcfd);
+        return EXIT_FAILURE;
+    }
+
+    char buf[BUFFER_SIZE];
+    while ((nread = read(srcfd, buf, sizeof(buf))) > 0) {
+        nwritten = write(dstfd, buf, nread);
+        if (nwritten != nread) {
+            perror("Writing to destination file failed.");
+            break;
+        }
+    }
+
+    if (nread == -1) {
+        perror("Reading from source file failed.");
+    }
+
+    close(srcfd);
+    close(dstfd);
+
+    return nread == -1 ? EXIT_FAILURE : EXIT_SUCCESS;
+}
