@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <limits.h>
+
+typedef struct Process {
+    unsigned int id;
+    unsigned int arrivalTime;
+    unsigned int burstTime;
+    unsigned int remainingBurstTime;
+} Process;
+
+unsigned int findMinBurstTimeProcess(Process processes[], size_t n, unsigned int currentTime) {
+    unsigned int minBurst = UINT_MAX;
+    unsigned int minIndex = ~0u;
+
+    for (size_t i = 0; i < n; ++i) {
+        if (processes[i].arrivalTime <= currentTime && processes[i].remainingBurstTime < minBurst && processes[i].remainingBurstTime > 0) {
+            minBurst = processes[i].remainingBurstTime;
+            minIndex = i;
+        }
+    }
+
+    return minIndex;
+}
+
+int main() {
+    Process processes[] = {
+        {1, 0, 6, 6},
+        {2, 2, 4, 4},
+        {3, 4, 8, 8},
+        {4, 6, 5, 5}
+    };
+
+    size_t n = sizeof(processes) / sizeof(processes[0]);
+    unsigned int currentTime = 0;
+
+    printf("Process Execution Order: ");
+
+    size_t completed = 0;
+    while (completed < n) {
+        size_t minBurstIndex = findMinBurstTimeProcess(processes, n, currentTime);
+
+        if (minBurstIndex == ~0u) {
+            currentTime++;
+            continue;
+        }
+
+        printf("P%zu ", processes[minBurstIndex].id + 1U); // Add 1 to display 'P1', not 'P0'
+        processes[minBurstIndex].remainingBurstTime--;
+        currentTime++;
+
+        if (processes[minBurstIndex].remainingBurstTime == 0) {
+            completed++;
+        }
+    }
+
+    return 0;
+}
