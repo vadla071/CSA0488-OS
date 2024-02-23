@@ -1,0 +1,58 @@
+#include <stdio.h>
+
+#define MAX_PROCESS 10
+
+
+struct Process {
+    int id;
+    int burst_time;
+    int remaining_time;
+};
+
+void roundRobin(struct Process processes[], int n, int time_quantum) {
+    int total_time = 0;
+    int remaining_processes = n;
+ 
+    int current_process_index = 0;
+
+    while (remaining_processes > 0) {
+        if (processes[current_process_index].remaining_time > 0) {
+            
+            if (processes[current_process_index].remaining_time <= time_quantum) {
+                total_time += processes[current_process_index].remaining_time;
+                processes[current_process_index].remaining_time = 0;
+                printf("Process %d finished at time %d\n", processes[current_process_index].id, total_time);
+                remaining_processes--;
+            } else {
+                total_time += time_quantum;
+                processes[current_process_index].remaining_time -= time_quantum;
+            }
+        }
+        
+        // Move to the next process
+        current_process_index = (current_process_index + 1) % n;
+    }
+}
+
+int main() {
+    int n, time_quantum;
+    struct Process processes[MAX_PROCESS];
+    
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+    
+    printf("Enter the time quantum: ");
+    scanf("%d", &time_quantum);
+    
+    printf("Enter burst time for each process:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Process %d: ", i + 1);
+        scanf("%d", &processes[i].burst_time);
+        processes[i].id = i + 1;
+        processes[i].remaining_time = processes[i].burst_time;
+    }
+    
+    roundRobin(processes, n, time_quantum);
+    
+    return 0;
+}
