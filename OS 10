@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+#define MAX_SIZE 1024
+
+// Define message structure
+struct message_buffer {
+    long message_type;
+    char message_text[MAX_SIZE];
+};
+
+int main() {
+    key_t key;
+    int message_id;
+    struct message_buffer message;
+
+    // Generate unique key for message queue
+    key = ftok("progfile", 65);
+    // Create a message queue
+    message_id = msgget(key, 0666 | IPC_CREAT);
+
+    // Parent process sends message
+    if (fork() > 0) {
+        // Message to be sent
+        strcpy(message.message_text, "Hello from parent process!");
+        message.message_type = 1;
+
+        // Send message
+        msgsnd(message_id, &message, sizeof(message), 0);
+        printf("Data sent by parent process: %s\n", message.message_text);
+    }
+    // Child process receives message
+    else {
+        // Receive message
+        msgrcv(message_id, &message, sizeof(message), 1, 0);
+        printf("Data received by child process: %s\n", message.message_text);
+        // Destroy the message queue
+        msgctl(message_id, IPC_RMID, NULL);
+    }
+
+    return 0;
+}
