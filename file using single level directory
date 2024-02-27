@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_FILES 100
+#define MAX_FILENAME 50
+
+// File structure
+struct File {
+    char name[MAX_FILENAME];
+    int size;
+};
+
+// Directory structure
+struct Directory {
+    struct File files[MAX_FILES];
+    int count;
+};
+
+// Function prototypes
+void initializeDirectory(struct Directory *dir);
+void createFile(struct Directory *dir, const char *name, int size);
+void deleteFile(struct Directory *dir, const char *name);
+void listFiles(struct Directory *dir);
+
+int main() {
+    struct Directory dir;
+    initializeDirectory(&dir);
+    
+    // Creating files
+    createFile(&dir, "file1.txt", 100);
+    createFile(&dir, "file2.txt", 200);
+    createFile(&dir, "file3.txt", 150);
+    
+    // Listing files
+    printf("Files in the directory:\n");
+    listFiles(&dir);
+    
+    // Deleting file
+    deleteFile(&dir, "file2.txt");
+    
+    // Listing files after deletion
+    printf("\nFiles in the directory after deletion:\n");
+    listFiles(&dir);
+    
+    return 0;
+}
+
+// Initialize directory
+void initializeDirectory(struct Directory *dir) {
+    dir->count = 0;
+}
+
+// Create a new file
+void createFile(struct Directory *dir, const char *name, int size) {
+    if (dir->count < MAX_FILES) {
+        strcpy(dir->files[dir->count].name, name);
+        dir->files[dir->count].size = size;
+        dir->count++;
+        printf("File '%s' created successfully.\n", name);
+    } else {
+        printf("Cannot create file '%s'. Directory is full.\n", name);
+    }
+}
+
+// Delete a file
+void deleteFile(struct Directory *dir, const char *name) {
+    int found = 0;
+    for (int i = 0; i < dir->count; i++) {
+        if (strcmp(dir->files[i].name, name) == 0) {
+            for (int j = i; j < dir->count - 1; j++) {
+                strcpy(dir->files[j].name, dir->files[j + 1].name);
+                dir->files[j].size = dir->files[j + 1].size;
+            }
+            dir->count--;
+            found = 1;
+            printf("File '%s' deleted successfully.\n", name);
+            break;
+        }
+    }
+    if (!found) {
+        printf("File '%s' not found.\n", name);
+    }
+}
+
+// List all files in the directory
+void listFiles(struct Directory *dir) {
+    if (dir->count == 0) {
+        printf("No files in the directory.\n");
+    } else {
+        printf("Name\tSize\n");
+        for (int i = 0; i < dir->count; i++) {
+            printf("%s\t%d\n", dir->files[i].name, dir->files[i].size);
+        }
+    }
+}
