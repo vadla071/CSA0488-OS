@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure representing a disk block
+struct DiskBlock {
+    int data;
+    struct DiskBlock* next;
+};
+
+// Function to read a block from the file using linked allocation
+void readBlock(struct DiskBlock* firstBlock) {
+    struct DiskBlock* currentBlock = firstBlock;
+    while (currentBlock != NULL) {
+        printf("%d -> ", currentBlock->data);
+        currentBlock = currentBlock->next;
+    }
+    printf("NULL\n");
+}
+
+// Function to free memory allocated for disk blocks
+void freeBlocks(struct DiskBlock* firstBlock) {
+    struct DiskBlock* currentBlock = firstBlock;
+    while (currentBlock != NULL) {
+        struct DiskBlock* temp = currentBlock;
+        currentBlock = currentBlock->next;
+        free(temp);
+    }
+}
+
+int main() {
+    struct DiskBlock* firstBlock = NULL;
+    struct DiskBlock* lastBlock = NULL;
+    int numBlocks;
+
+    // Input the number of blocks
+    printf("Enter the number of blocks: ");
+    scanf("%d", &numBlocks);
+
+    // Input the block data
+    printf("Enter the block data:\n");
+    for (int i = 0; i < numBlocks; i++) {
+        int data;
+        scanf("%d", &data);
+
+        // Create a new block
+        struct DiskBlock* newBlock = (struct DiskBlock*)malloc(sizeof(struct DiskBlock));
+        newBlock->data = data;
+        newBlock->next = NULL;
+
+        // Update pointers
+        if (firstBlock == NULL) {
+            firstBlock = newBlock;
+        } else {
+            lastBlock->next = newBlock;
+        }
+        lastBlock = newBlock;
+    }
+
+    // Simulate accessing the file using linked allocation
+    printf("File content:\n");
+    readBlock(firstBlock);
+
+    // Free memory allocated for disk blocks
+    freeBlocks(firstBlock);
+
+    return 0;
+}
