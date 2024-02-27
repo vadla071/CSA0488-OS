@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_MEMORY_SIZE 100
+
+// Structure to represent a memory block
+struct MemoryBlock {
+    int size;
+    int allocated;
+};
+
+// Function prototypes
+void initializeMemory(struct MemoryBlock memory[], int size);
+void displayMemory(struct MemoryBlock memory[], int size);
+void firstFit(struct MemoryBlock memory[], int size, int processSize);
+
+int main() {
+    struct MemoryBlock memory[MAX_MEMORY_SIZE];
+    int totalMemory, processSize;
+
+    // Input total memory size
+    printf("Enter total memory size: ");
+    scanf("%d", &totalMemory);
+
+    // Initialize memory blocks
+    initializeMemory(memory, totalMemory);
+
+    // Display initial memory status
+    printf("\nInitial memory status:\n");
+    displayMemory(memory, totalMemory);
+
+    // Input process size
+    printf("\nEnter process size: ");
+    scanf("%d", &processSize);
+
+    // Allocate memory using first fit algorithm
+    firstFit(memory, totalMemory, processSize);
+
+    // Display final memory status
+    printf("\nFinal memory status:\n");
+    displayMemory(memory, totalMemory);
+
+    return 0;
+}
+
+// Initialize memory blocks
+void initializeMemory(struct MemoryBlock memory[], int size) {
+    for (int i = 0; i < size; i++) {
+        memory[i].size = rand() % 100 + 1; // Random size for each memory block
+        memory[i].allocated = 0;
+    }
+}
+
+// Display memory status
+void displayMemory(struct MemoryBlock memory[], int size) {
+    printf("Memory Block\tSize\tAllocated\n");
+    for (int i = 0; i < size; i++) {
+        printf("%d\t\t%d\t%s\n", i + 1, memory[i].size, memory[i].allocated ? "Yes" : "No");
+    }
+}
+
+// Allocate memory using first fit algorithm
+void firstFit(struct MemoryBlock memory[], int size, int processSize) {
+    // Find the first available block in memory that can accommodate the process
+    for (int i = 0; i < size; i++) {
+        if (!memory[i].allocated && memory[i].size >= processSize) {
+            memory[i].allocated = 1;
+            printf("Memory allocated successfully using first fit.\n");
+            return;
+        }
+    }
+
+    // Memory allocation failed if no suitable block is found
+    printf("Memory allocation failed. No suitable block found.\n");
+}
