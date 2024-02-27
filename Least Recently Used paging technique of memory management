@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define NUM_FRAMES 3
+#define NUM_PAGES 10
+
+int main() {
+    int referenceString[NUM_PAGES] = {0, 1, 2, 3, 2, 4, 5, 3, 4, 1};
+    int frames[NUM_FRAMES];
+    int pageFaults = 0;
+    int nextFrameIndex = 0;
+    int pageFound;
+    int lastUsed[NUM_FRAMES] = {0};
+
+    for (int i = 0; i < NUM_FRAMES; i++) {
+        frames[i] = -1; // Initialize frames to -1 to indicate they are empty
+    }
+
+    printf("Reference String: ");
+    for (int i = 0; i < NUM_PAGES; i++) {
+        printf("%d ", referenceString[i]);
+    }
+    printf("\n");
+
+    for (int i = 0; i < NUM_PAGES; i++) {
+        pageFound = 0;
+        // Check if page already in frames
+        for (int j = 0; j < NUM_FRAMES; j++) {
+            if (frames[j] == referenceString[i]) {
+                pageFound = 1;
+                lastUsed[j] = i; // Update last used time
+                break;
+            }
+        }
+        // If page not found, perform page replacement
+        if (!pageFound) {
+            int leastUsedIndex = 0;
+            for (int j = 1; j < NUM_FRAMES; j++) {
+                if (lastUsed[j] < lastUsed[leastUsedIndex]) {
+                    leastUsedIndex = j;
+                }
+            }
+            frames[leastUsedIndex] = referenceString[i];
+            lastUsed[leastUsedIndex] = i;
+            pageFaults++;
+        }
+
+        printf("Page %d -> ", referenceString[i]);
+        for (int j = 0; j < NUM_FRAMES; j++) {
+            if (frames[j] == -1) {
+                printf(" - ");
+            } else {
+                printf("%d ", frames[j]);
+            }
+        }
+        printf("\n");
+    }
+
+    printf("Total Page Faults: %d\n", pageFaults);
+
+    return 0;
+}
