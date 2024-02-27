@@ -1,0 +1,144 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX_PROCESSES 10
+#define MAX_RESOURCES 10
+
+int available[MAX_RESOURCES];
+int maximum[MAX_PROCESSES][MAX_RESOURCES];
+int allocation[MAX_PROCESSES][MAX_RESOURCES];
+int need[MAX_PROCESSES][MAX_RESOURCES];
+bool finished[MAX_PROCESSES];
+
+// Function prototypes
+bool isSafe(int processes[], int available[], int max[][MAX_RESOURCES], int alloc[][MAX_RESOURCES], int need[][MAX_RESOURCES], int num_processes, int num_resources);
+void printState(int processes[], int available[], int max[][MAX_RESOURCES], int alloc[][MAX_RESOURCES], int need[][MAX_RESOURCES], int num_processes, int num_resources);
+bool requestResource(int process_id, int request[], int available[], int max[][MAX_RESOURCES], int alloc[][MAX_RESOURCES], int need[][MAX_RESOURCES], int num_resources);
+
+int main() {
+    int num_processes, num_resources;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &num_processes);
+
+    printf("Enter number of resources: ");
+    scanf("%d", &num_resources);
+
+    // Input maximum resources required by each process
+    printf("Enter maximum resources required by each process:\n");
+    for (int i = 0; i < num_processes; ++i) {
+        printf("For process %d: ", i);
+        for (int j = 0; j < num_resources; ++j) {
+            scanf("%d", &maximum[i][j]);
+        }
+    }
+
+    // Input allocated resources for each process
+    printf("Enter allocated resources for each process:\n");
+    for (int i = 0; i < num_processes; ++i) {
+        printf("For process %d: ", i);
+        for (int j = 0; j < num_resources; ++j) {
+            scanf("%d", &allocation[i][j]);
+            need[i][j] = maximum[i][j] - allocation[i][j];
+        }
+    }
+
+    // Input available resources
+    printf("Enter available resources: ");
+    for (int i = 0; i < num_resources; ++i) {
+        scanf("%d", &available[i]);
+    }
+
+    // Run the Banker's algorithm to check for safe state
+    int processes[MAX_PROCESSES];
+    for (int i = 0; i < num_processes; ++i) {
+        processes[i] = i;
+        finished[i] = false;
+    }
+
+    if (isSafe(processes, available, maximum, allocation, need, num_processes, num_resources)) {
+        printf("Safe state. No deadlock.\n");
+    } else {
+        printf("Unsafe state. Deadlock may occur.\n");
+    }
+
+    // Example request for resources
+    int process_id;
+    printf("\nEnter process id to request resources: ");
+    scanf("%d", &process_id);
+    if (process_id >= 0 && process_id < num_processes) {
+        int request[MAX_RESOURCES];
+        printf("Enter resource request for process %d: ", process_id);
+        for (int i = 0; i < num_resources; ++i) {
+            scanf("%d", &request[i]);
+        }
+        if (requestResource(process_id, request, available, maximum, allocation, need, num_resources)) {
+            printf("Resource request granted.\n");
+        } else {
+            printf("Resource request denied. Deadlock would occur.\n");
+        }
+    } else {
+        printf("Invalid process id.\n");
+    }
+
+    return 0;
+}
+
+// Function to check if the system is in a safe state
+bool isSafe(int processes[], int available[], int max[][MAX_RESOURCES], int alloc[][MAX_RESOURCES], int need[][MAX_RESOURCES], int num_processes, int num_resources) {
+    int work[MAX_RESOURCES];
+    bool finish[MAX_PROCESSES];
+
+    // Initialize work and finish arrays
+    for (int i = 0; i < num_resources; ++i) {
+        work[i] = available[i];
+    }
+    for (int i = 0; i < num_processes; ++i) {
+        finish[i] = false;
+    }
+
+    int count = 0;
+    int safe_sequence[MAX_PROCESSES];
+
+    // Find a process that can be executed safely
+    while (count < num_processes) {
+        bool found = false;
+        for (int i = 0; i < num_processes; ++i) {
+            if (!finish[i]) {
+                bool can_execute = true;
+                for (int j = 0; j < num_resources; ++j) {
+                    if (need[i][j] > work[j]) {
+                        can_execute = false;
+                        break;
+                    }
+                }
+                if (can_execute) {
+                    for (int j = 0; j < num_resources; ++j) {
+                        work[j] += alloc[i][j];
+                    }
+                    finish[i] = true;
+                    safe_sequence[count] = i;
+                    ++count;
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            return false; // No safe sequence found
+        }
+    }
+
+    // Print safe sequence
+    printf("Safe sequence: ");
+    for (int i = 0; i < num_processes; ++i) {
+        printf("%d ", safe_sequence[i]);
+    }
+    printf("\n");
+
+    return true; // System is in a safe state
+}
+
+// Function to print the current state of the system
+void printState(int processes[], int available[], int max[][MAX_RESOURCES], int alloc[][MAX_RESOURCES], int need[][MAX_RESOURCES], int num_processes, int num_resources) {
+    printf("Processes:
