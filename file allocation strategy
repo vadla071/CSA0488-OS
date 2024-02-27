@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_RECORDS 100
+
+// Function to read a record from the file
+void readRecord(int file[], int recordNumber) {
+    printf("Reading record %d: ", recordNumber);
+    for (int i = 0; i < recordNumber; i++) {
+        printf("%d ", file[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int file[MAX_RECORDS];
+    int numRecords;
+
+    // Input the number of records
+    printf("Enter the number of records: ");
+    scanf("%d", &numRecords);
+
+    // Input the records
+    printf("Enter the records:\n");
+    for (int i = 0; i < numRecords; i++) {
+        scanf("%d", &file[i]);
+    }
+
+    // Simulate accessing each record
+    for (int i = 0; i < numRecords; i++) {
+        readRecord(file, i + 1);
+    }
+
+    return 0;
+}
