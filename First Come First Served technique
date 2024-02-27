@@ -1,0 +1,73 @@
+#include <stdio.h>
+
+// Structure to represent a process
+struct Process {
+    int processID;
+    int arrivalTime;
+    int burstTime;
+    int completionTime;
+};
+
+// Function to perform FCFS scheduling
+void FCFS_Schedule(struct Process processes[], int n) {
+    int currentTime = 0;
+
+    // Traverse through each process
+    for (int i = 0; i < n; i++) {
+        // If the process has arrived, update completion time
+        if (currentTime >= processes[i].arrivalTime) {
+            processes[i].completionTime = currentTime + processes[i].burstTime;
+            currentTime = processes[i].completionTime;
+        } else {
+            // If the process hasn't arrived, wait until it arrives
+            processes[i].completionTime = processes[i].arrivalTime + processes[i].burstTime;
+            currentTime = processes[i].completionTime;
+        }
+    }
+}
+
+// Function to display the schedule and average turnaround time
+void displaySchedule(struct Process processes[], int n) {
+    float totalTurnaroundTime = 0.0;
+
+    printf("\nProcess\t Arrival Time\t Burst Time\t Completion Time\t Turnaround Time\n");
+
+    for (int i = 0; i < n; i++) {
+        int turnaroundTime = processes[i].completionTime - processes[i].arrivalTime;
+        totalTurnaroundTime += turnaroundTime;
+
+        printf("%d\t %d\t\t %d\t\t %d\t\t\t %d\n", processes[i].processID, processes[i].arrivalTime,
+               processes[i].burstTime, processes[i].completionTime, turnaroundTime);
+    }
+
+    float averageTurnaroundTime = totalTurnaroundTime / n;
+    printf("\nAverage Turnaround Time: %.2f\n", averageTurnaroundTime);
+}
+
+int main() {
+    int n;
+
+    // Input number of processes
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    // Array to store information about each process
+    struct Process processes[n];
+
+    // Input details for each process
+    for (int i = 0; i < n; i++) {
+        processes[i].processID = i + 1;
+        printf("Enter Arrival Time for Process %d: ", processes[i].processID);
+        scanf("%d", &processes[i].arrivalTime);
+        printf("Enter Burst Time for Process %d: ", processes[i].processID);
+        scanf("%d", &processes[i].burstTime);
+    }
+
+    // Perform FCFS Scheduling
+    FCFS_Schedule(processes, n);
+
+    // Display the schedule and average turnaround time
+    displaySchedule(processes, n);
+
+    return 0;
+}
