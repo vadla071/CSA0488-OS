@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define MAX_REQUESTS 100
+
+// Function to calculate the total seek time for FCFS scheduling
+int calculateTotalSeekTime(int requests[], int numRequests, int initialPosition) {
+    int totalSeekTime = 0;
+    int currentTrack = initialPosition;
+
+    for (int i = 0; i < numRequests; i++) {
+        totalSeekTime += abs(requests[i] - currentTrack);
+        currentTrack = requests[i];
+    }
+
+    return totalSeekTime;
+}
+
+int main() {
+    int requests[MAX_REQUESTS];
+    int numRequests;
+    int initialPosition;
+
+    // Input the number of requests
+    printf("Enter the number of disk requests: ");
+    scanf("%d", &numRequests);
+
+    // Input the disk requests
+    printf("Enter the disk requests:\n");
+    for (int i = 0; i < numRequests; i++) {
+        scanf("%d", &requests[i]);
+    }
+
+    // Input the initial position of the disk head
+    printf("Enter the initial position of the disk head: ");
+    scanf("%d", &initialPosition);
+
+    // Calculate and display the total seek time
+    int totalSeekTime = calculateTotalSeekTime(requests, numRequests, initialPosition);
+    printf("Total seek time using FCFS: %d\n", totalSeekTime);
+
+    return 0;
+}
