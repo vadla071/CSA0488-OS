@@ -1,0 +1,146 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_FILES 100
+#define MAX_FILENAME 50
+#define MAX_DIRECTORIES 10
+
+// File structure
+struct File {
+    char name[MAX_FILENAME];
+    int size;
+};
+
+// Directory structure
+struct Directory {
+    char name[MAX_FILENAME];
+    struct File files[MAX_FILES];
+    int count;
+};
+
+// File system structure
+struct FileSystem {
+    struct Directory directories[MAX_DIRECTORIES];
+    int count;
+};
+
+// Function prototypes
+void initializeFileSystem(struct FileSystem *fs);
+void createDirectory(struct FileSystem *fs, const char *name);
+void createFile(struct FileSystem *fs, const char *dirName, const char *fileName, int size);
+void deleteFile(struct FileSystem *fs, const char *dirName, const char *fileName);
+void listFiles(struct FileSystem *fs, const char *dirName);
+struct Directory *findDirectory(struct FileSystem *fs, const char *dirName);
+
+int main() {
+    struct FileSystem fs;
+    initializeFileSystem(&fs);
+    
+    // Creating directories
+    createDirectory(&fs, "documents");
+    createDirectory(&fs, "images");
+    
+    // Creating files in documents directory
+    createFile(&fs, "documents", "doc1.txt", 100);
+    createFile(&fs, "documents", "doc2.txt", 150);
+    
+    // Creating files in images directory
+    createFile(&fs, "images", "image1.jpg", 200);
+    createFile(&fs, "images", "image2.png", 250);
+    
+    // Listing files in documents directory
+    printf("Files in the documents directory:\n");
+    listFiles(&fs, "documents");
+    
+    // Deleting file from images directory
+    deleteFile(&fs, "images", "image1.jpg");
+    
+    // Listing files in images directory after deletion
+    printf("\nFiles in the images directory after deletion:\n");
+    listFiles(&fs, "images");
+    
+    return 0;
+}
+
+// Initialize file system
+void initializeFileSystem(struct FileSystem *fs) {
+    fs->count = 0;
+}
+
+// Create a new directory
+void createDirectory(struct FileSystem *fs, const char *name) {
+    if (fs->count < MAX_DIRECTORIES) {
+        strcpy(fs->directories[fs->count].name, name);
+        fs->directories[fs->count].count = 0;
+        fs->count++;
+        printf("Directory '%s' created successfully.\n", name);
+    } else {
+        printf("Cannot create directory '%s'. File system is full.\n", name);
+    }
+}
+
+// Create a new file in a directory
+void createFile(struct FileSystem *fs, const char *dirName, const char *fileName, int size) {
+    struct Directory *dir = findDirectory(fs, dirName);
+    if (dir != NULL && dir->count < MAX_FILES) {
+        strcpy(dir->files[dir->count].name, fileName);
+        dir->files[dir->count].size = size;
+        dir->count++;
+        printf("File '%s' created successfully in directory '%s'.\n", fileName, dirName);
+    } else {
+        printf("Cannot create file '%s'. Directory '%s' not found or directory is full.\n", fileName, dirName);
+    }
+}
+
+// Delete a file from a directory
+void deleteFile(struct FileSystem *fs, const char *dirName, const char *fileName) {
+    struct Directory *dir = findDirectory(fs, dirName);
+    if (dir != NULL) {
+        int found = 0;
+        for (int i = 0; i < dir->count; i++) {
+            if (strcmp(dir->files[i].name, fileName) == 0) {
+                for (int j = i; j < dir->count - 1; j++) {
+                    strcpy(dir->files[j].name, dir->files[j + 1].name);
+                    dir->files[j].size = dir->files[j + 1].size;
+                }
+                dir->count--;
+                found = 1;
+                printf("File '%s' deleted successfully from directory '%s'.\n", fileName, dirName);
+                break;
+            }
+        }
+        if (!found) {
+            printf("File '%s' not found in directory '%s'.\n", fileName, dirName);
+        }
+    } else {
+        printf("Directory '%s' not found.\n", dirName);
+    }
+}
+
+// List all files in a directory
+void listFiles(struct FileSystem *fs, const char *dirName) {
+    struct Directory *dir = findDirectory(fs, dirName);
+    if (dir != NULL) {
+        if (dir->count == 0) {
+            printf("No files in directory '%s'.\n", dirName);
+        } else {
+            printf("Name\tSize\n");
+            for (int i = 0; i < dir->count; i++) {
+                printf("%s\t%d\n", dir->files[i].name, dir->files[i].size);
+            }
+        }
+    } else {
+        printf("Directory '%s' not found.\n", dirName);
+    }
+}
+
+// Find a directory by name
+struct Directory *findDirectory(struct FileSystem *fs, const char *dirName) {
+    for (int i = 0; i < fs->count; i++) {
+        if (strcmp(fs->directories[i].name, dirName) == 0) {
+            return &fs->directories[i];
+        }
+    }
+    return NULL;
+}
