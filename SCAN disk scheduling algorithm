@@ -1,0 +1,94 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define MAX_REQUESTS 100
+
+// Function to calculate the total seek time for SCAN scheduling
+int calculateTotalSeekTime(int requests[], int numRequests, int initialPosition, int direction, int maxTrack) {
+    int totalSeekTime = 0;
+    int currentTrack = initialPosition;
+    int index = 0;
+
+    // Sort requests in ascending order
+    if (direction == 1) {
+        for (int i = 0; i < numRequests - 1; i++) {
+            for (int j = 0; j < numRequests - i - 1; j++) {
+                if (requests[j] > requests[j + 1]) {
+                    int temp = requests[j];
+                    requests[j] = requests[j + 1];
+                    requests[j + 1] = temp;
+                }
+            }
+        }
+    }
+    // Sort requests in descending order
+    else {
+        for (int i = 0; i < numRequests - 1; i++) {
+            for (int j = 0; j < numRequests - i - 1; j++) {
+                if (requests[j] < requests[j + 1]) {
+                    int temp = requests[j];
+                    requests[j] = requests[j + 1];
+                    requests[j + 1] = temp;
+                }
+            }
+        }
+    }
+
+    // Find the index of the request closest to the initial position
+    for (int i = 0; i < numRequests; i++) {
+        if (direction == 1 && requests[i] >= initialPosition) {
+            index = i;
+            break;
+        } else if (direction == -1 && requests[i] <= initialPosition) {
+            index = i;
+            break;
+        }
+    }
+
+    // Service requests in the path of the disk arm
+    for (int i = index; i >= 0 && i < numRequests; i += direction) {
+        totalSeekTime += abs(requests[i] - currentTrack);
+        currentTrack = requests[i];
+    }
+
+    // Calculate seek time to move to the end of the disk
+    totalSeekTime += abs(maxTrack - currentTrack);
+
+    return totalSeekTime;
+}
+
+int main() {
+    int requests[MAX_REQUESTS];
+    int numRequests;
+    int initialPosition;
+    int maxTrack;
+
+    // Input the number of requests
+    printf("Enter the number of disk requests: ");
+    scanf("%d", &numRequests);
+
+    // Input the disk requests
+    printf("Enter the disk requests:\n");
+    for (int i = 0; i < numRequests; i++) {
+        scanf("%d", &requests[i]);
+    }
+
+    // Input the initial position of the disk head
+    printf("Enter the initial position of the disk head: ");
+    scanf("%d", &initialPosition);
+
+    // Input the maximum track of the disk
+    printf("Enter the maximum track of the disk: ");
+    scanf("%d", &maxTrack);
+
+    // Calculate and display the total seek time for SCAN algorithm (left to right)
+    int totalSeekTimeLeftToRight = calculateTotalSeekTime(requests, numRequests, initialPosition, 1, maxTrack);
+    printf("Total seek time using SCAN (left to right): %d\n", totalSeekTimeLeftToRight);
+
+    // Calculate and display the total seek time for SCAN algorithm (right to left)
+    int totalSeekTimeRightToLeft = calculateTotalSeekTime(requests, numRequests, initialPosition, -1, maxTrack);
+    printf("Total seek time using SCAN (right to left): %d\n", totalSeekTimeRightToLeft);
+
+    return 0;
+}
