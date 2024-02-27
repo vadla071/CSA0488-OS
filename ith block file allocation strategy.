@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_BLOCKS 100
+
+// Function to read a block from the file using index block
+void readBlock(int indexBlock[], int blockNumber) {
+    printf("Reading block %d: %d\n", blockNumber, indexBlock[blockNumber]);
+}
+
+int main() {
+    int indexBlock[MAX_BLOCKS];
+    int numBlocks;
+
+    // Input the number of blocks
+    printf("Enter the number of blocks: ");
+    scanf("%d", &numBlocks);
+
+    // Input the index block entries
+    printf("Enter the index block entries:\n");
+    for (int i = 0; i < numBlocks; i++) {
+        scanf("%d", &indexBlock[i]);
+    }
+
+    // Simulate accessing each block using index block
+    for (int i = 0; i < numBlocks; i++) {
+        readBlock(indexBlock, i);
+    }
+
+    return 0;
+}
