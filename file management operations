@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    FILE *file;
+    char filename[] = "example.txt";
+    char buffer[100];
+    int num;
+
+    // Create a new file
+    file = fopen(filename, "w");
+    if (file == NULL) {
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    // Write data to the file
+    printf("Enter data to write to the file: ");
+    fgets(buffer, sizeof(buffer), stdin);
+    fputs(buffer, file);
+
+    // Close the file
+    fclose(file);
+
+    // Open the file for reading
+    file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    // Read data from the file and print it
+    printf("Data read from the file:\n");
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        printf("%s", buffer);
+    }
+
+    // Close the file
+    fclose(file);
+
+    return 0;
+}
